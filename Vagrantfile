@@ -40,4 +40,14 @@ Vagrant.configure(2) do |config|
 
    # forward port 8080
    config.vm.network "forwarded_port", guest: 8080, host: 8080 
+
+   # install docker engine 
+   config.vm.provision "shell", inline: "apt-get install apt-transport-https ca-certificates"
+   config.vm.provision "shell", inline: " sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
+   config.vm.provision "shell", inline: <<-END
+		curl -L https://github.com/docker/compose/releases/download/1.6.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+		chmod +x /usr/local/bin/docker-compose
+		mkdir -p ~/.zsh/completion
+		curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/zsh/_docker-compose > ~/.zsh/completion/_docker-compose
+	END		
 end
