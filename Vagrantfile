@@ -10,28 +10,19 @@ Vagrant.configure(2) do |config|
    end
 
    # install stuff
-   config.vm.provision "shell", inline: "sudo apt-get update && sudo apt-get install -y wget zsh git"
-   # pull down my vim stuff and set permissions
-   config.vm.provision "shell", inline: "git clone https://github.com/tomgeorge/vimfiles /home/vagrant/.vim"
-   config.vm.provision "shell", inline: "chown -R vagrant:vagrant /home/vagrant/.vim"
 
-   # pull down my dotfiles and set permissions, could just use privileged: false
-   config.vm.provision "shell", inline: "git clone https://github.com/tomgeorge/dotfiles /home/vagrant/dotfiles"
-   config.vm.provision "shell", inline: "chown -R vagrant:vagrant /home/vagrant/dotfiles"
+   # Stuff that ends in || true could possibly fail silently.  Don't forget to check when debugging.
 
-   # symlink my dotfiles
-   config.vm.provision "shell", inline: "rm /home/vagrant/.bashrc"
-   config.vm.provision "shell", inline: "ln /home/vagrant/dotfiles/zsh/.zshrc /home/vagrant/.zshrc && ln /home/vagrant/dotfiles/tmux/.tmux.conf /home/vagrant/.tmux.conf && ln /home/vagrant/dotfiles/vim/.vimrc /home/vagrant/.vimrc && ln /home/vagrant/dotfiles/bash/.bashrc /home/vagrant/.bashrc  && ln /home/vagrant/dotfiles/git/.gitconfig /home/vagrant/.gitconfig"
+   
+   # install some utilities
+   config.vm.provision "shell", path: "install-utilities.sh"
+   
+   # set up my dotfiles
+   config.vm.provision "shell", path: "set-up-dotfiles.sh"
 
    # install oh-my-zsh
-   config.vm.provision "shell", privileged: false,
-   	inline: "git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh"
-   config.vm.provision "shell", inline: "chsh -s /bin/zsh vagrant"
+   config.vm.provision "shell", path: "install-oh-my-zsh.sh"
 	
-   # install vim plugins
-   config.vm.provision "shell", privileged: false,
-   	inline: "vi +PluginInstall +qall"
-
    # install docker
    config.vm.provision "docker"
    # create docker group
@@ -40,14 +31,11 @@ Vagrant.configure(2) do |config|
 
    # forward port 8080
    config.vm.network "forwarded_port", guest: 8080, host: 8080 
+   config.vm.network "forwarded_port", guest: 80, host: 80 
 
-   # install docker engine 
-   config.vm.provision "shell", inline: "apt-get install apt-transport-https ca-certificates"
-   config.vm.provision "shell", inline: " sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
-   config.vm.provision "shell", inline: <<-END
-		curl -L https://github.com/docker/compose/releases/download/1.6.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-		chmod +x /usr/local/bin/docker-compose
-		mkdir -p ~/.zsh/completion
-		curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/zsh/_docker-compose > ~/.zsh/completion/_docker-compose
-	END		
+   # install docker compose, and docker completion 
+   config.vm.provision "shell", path: "install-docker-compose.sh"
+
+   # configure vim
+   config.vm.provision "shell", path: "configure-vim.sh"
 end
