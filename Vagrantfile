@@ -15,13 +15,13 @@ Vagrant.configure(2) do |config|
 
    
    # install some utilities
-   config.vm.provision "shell", path: "install-utilities.sh"
+   config.vm.provision "shell", path: "sh/install-utilities.sh"
    
    # set up my dotfiles
-   config.vm.provision "shell", path: "set-up-dotfiles.sh"
+   config.vm.provision "shell", path: "sh/set-up-dotfiles.sh"
 
    # install oh-my-zsh
-   config.vm.provision "shell", path: "install-oh-my-zsh.sh"
+   config.vm.provision "shell", path: "sh/install-oh-my-zsh.sh"
 	
    # install docker
    config.vm.provision "docker"
@@ -34,8 +34,8 @@ Vagrant.configure(2) do |config|
    config.vm.network "forwarded_port", guest: 80, host: 80 
 
    # install docker compose, and docker completion 
-   config.vm.provision "shell", path: "install-docker-compose.sh"
+   config.vm.provision "shell", path: "sh/install-docker-compose.sh"
 
    # configure vim
-   config.vm.provision "shell", path: "configure-vim.sh"
+   config.vm.provision "shell", path: "sh/configure-vim.sh"
 end
